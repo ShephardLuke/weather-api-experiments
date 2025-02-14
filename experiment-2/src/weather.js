@@ -1,14 +1,14 @@
 import axios from "axios";
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import WeatherDataDisplay from "./weatherDataDisplay";
 
 
 export default function Weather() {
     const [weatherData, setWeatherData] = useState(null)
 
-    useEffect(() => { // Fetches the data once
+    const fetchData = useCallback(async () => { // Fetches the data
         
-        function generateURL(lat, lon, units="metric") {
+        function generateURL(lat, lon, units="metric") { // Returns URL for given lat, lon
             const API_KEY = process.env.REACT_APP_WEATHER_API_KEY
             const baseURL = "https://api.openweathermap.org/data/2.5/weather?";
         
@@ -22,18 +22,18 @@ export default function Weather() {
             
         }
         
-        function appendToUrl(url, key, value, end=true) {
+        function appendToUrl(url, key, value, end=true) { // Add a parameter to url
             const newUrl = url + key + "=" + value + (end ? "" : "&")
 
             return newUrl
         }
 
-        async function getWeatherData() {
+        async function getWeatherData() { // Call api and return set the response to the data
             try {
                 let url  = generateURL(51.52477, -0.05236)
                 const response = await axios.get(url);
                 setWeatherData(response.data)
-                console.log("a", response.data)
+                console.log("API CALL", response.data)
                 
             } catch (err) {
                 console.error(err);
@@ -44,6 +44,13 @@ export default function Weather() {
 
     }, [])
 
+    useEffect(() => { // Runs once on first render
+        fetchData()
+    }, [fetchData])
+
+    function refreshData() { // Get updated data
+        fetchData();
+    }
 
     return (
         <>
@@ -54,6 +61,7 @@ export default function Weather() {
             :
             "No data found."
         }
+        <button onClick={refreshData}>Refresh</button>
         </>
     )
 }
