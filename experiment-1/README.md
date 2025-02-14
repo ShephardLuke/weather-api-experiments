@@ -7,7 +7,7 @@ Note: An api key from a free account at https://openweathermap.org/api is needed
 1. Make sure the [python-dotenv](https://pypi.org/project/python-dotenv/) and [requests](https://pypi.org/project/requests/) libraries are installed. This can be done using `python -m pip install {library}`. If that does not work sometimes `py` works instead.
 1. Create a .env file in this experiment-1 folder (the same location as this README).
 2. Add a WEATHER_API_KEY variable and set it to the api key from OpenWeather.
-3. Run the test.py
+3. Run the test.py file.
 
 ## Changing parameters:
 This program is set to request the current weather data for Queen Mary University of London using the current weather api at https://openweathermap.org/current.
