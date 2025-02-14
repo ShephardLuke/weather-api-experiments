@@ -1,5 +1,5 @@
 # Experiment 2 (Finished)
-## Goal: Display the weather data on a webpage.
+### Goal: Display the weather data on a webpage.
 This is a small step up from experiment 1, this time using react to show the data on a webpage.
 
 ## To run:

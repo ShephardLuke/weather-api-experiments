@@ -1,11 +1,14 @@
 # Experiment 1 (Finished)
-## Goal: Get a response with the current weather data at my university.
+### Goal: Get a response with the current weather data at my university.
 This is a very simple program as I just wanted to get a response and have an easy way of testing parameters before adding anything else.
+
 ## To run:
 Note: An api key from a free account at https://openweathermap.org/api is needed to run this.
+1. Make sure the [python-dotenv](https://pypi.org/project/python-dotenv/) and [requests](https://pypi.org/project/requests/) libraries are installed. This can be done using `python -m pip install {library}`. If that does not work sometimes `py` works instead.
 1. Create a .env file in this experiment-1 folder (the same location as this README).
 2. Add a WEATHER_API_KEY variable and set it to the api key from OpenWeather.
 3. Run the test.py
+
 ## Changing parameters:
 This program is set to request the current weather data for Queen Mary University of London using the current weather api at https://openweathermap.org/current.
 
