@@ -6,7 +6,7 @@ export default function WeatherLocation({location, addStoredLocation, removeStor
 
     const [weatherData, setWeatherData] = useState(null)
 
-    const getWeatherData = useCallback(async () => {
+    const getWeatherData = useCallback(async () => { // Uses current weather API to get the data and set it
         const url = `https://api.openweathermap.org/data/2.5/weather?lat=${location.getLatitude()}&lon=${location.getLongitude()}&units=metric&appid=${process.env.REACT_APP_WEATHER_API_KEY}`
         const response = await axios.get(url)
 

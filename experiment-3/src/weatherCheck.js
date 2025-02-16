@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react"
 import axios from "axios"
 import WeatherLocation from "./weatherLocation.js"
+import { Location } from "./location.js";
 
 export default function WeatherCheck() {
     const [location, setLocation] = useState(null)
@@ -9,16 +10,16 @@ export default function WeatherCheck() {
 
     const savedLocationsDisplay = savedLocations.map(savedLocation => <WeatherLocation key={savedLocation.getName()} location={savedLocation} removeStoredLocation={removeStoredLocation}/>)
 
-    useEffect(() => {
+    useEffect(() => { // Gets the saved locations only on the first render
         setSavedLocations(getStoredLocations())
     }, [])
 
 
-    function setStoredLocations(locations) {
+    function setStoredLocations(locations) { // Stores locations in localstorage
         localStorage.setItem("locations", JSON.stringify(locations))
     }
 
-    function getStoredLocations() {
+    function getStoredLocations() { // Gets the stored locations and returns them as an array of location objects
         const stored = localStorage.getItem("locations");
 
         if (stored !== null) {
@@ -30,8 +31,7 @@ export default function WeatherCheck() {
         return []
     }
 
-
-    function addStoredLocation() {
+    function addStoredLocation() { // Store a location
         if (location.isSaved()) {
             return false;
         }
@@ -43,7 +43,7 @@ export default function WeatherCheck() {
         setStoredLocations(newStoredLocations);
     }
 
-    function removeStoredLocation(toRemove) {
+    function removeStoredLocation(toRemove) { // Remove a stored location
         const newStoredLocations = [...savedLocations]
         newStoredLocations.splice(toRemove, 1)
 
@@ -56,7 +56,7 @@ export default function WeatherCheck() {
         setStoredLocations(newStoredLocations);
     }
 
-    const getLocation = useCallback(async () => {
+    const getLocation = useCallback(async () => { // Get a location using API and set the state
 
         async function getCoordinatesFromName(name) { // Checks name against Geocoding API, sets location if its found
             const url = `http://api.openweathermap.org/geo/1.0/direct?q=${name},GB&appid=${process.env.REACT_APP_WEATHER_API_KEY}`;
@@ -73,41 +73,40 @@ export default function WeatherCheck() {
             }
 
             console.log(response.data)
-    
 
-
-            if (response.data.length > 0) {
+            if (response.data.length > 0) { // A response with at least one place
                 const place = response.data[0]
                 
                 const savedNames = savedLocations.map(location => location.getName());
                 const index = savedNames.indexOf(place.name)
-                if (index !== -1) {
+                if (index !== -1) { // If already saved, no need to display
                     setFeedbackMessage(`${place.name} is already a saved location.`);
                     setLocation(savedLocations[index]);
                     return;
                 }
 
-                if (location != null && location.getName() === place.name) {
+                if (location != null && location.getName() === place.name) { // Place with same name is already shown
                     setFeedbackMessage("Weather data for " + place.name + " is already displayed.")
                     return;
                 }
                 setLocation(new Location(place.name, place.lat, place.lon))
                 setFeedbackMessage("Found " + place.name + ".")
+
             } else {
                 setFeedbackMessage(`No place called "` + name + `" was found.`)
                 setLocation(null)
             }
     
-
         }
     
-        function findWeather() {
+        function findWeather() { // Gets user input and attempts to get the location
             const userInput = document.getElementById("locationInput").value.toLowerCase()
 
             getCoordinatesFromName(userInput)
         }
 
         findWeather()
+
     }, [location, savedLocations])
 
 
@@ -120,8 +119,10 @@ export default function WeatherCheck() {
                 <input type="text" id="locationInput"/>   
                 <button onClick={getLocation}>Submit</button>             
             </div>
+            
             <p><strong>{feedbackMessage}</strong></p>
             <br/>
+
             {
                 location ? 
                 <div>
@@ -146,31 +147,3 @@ export default function WeatherCheck() {
     )
 }
 
-class Location {
-    constructor(name, latitude, longitude, saved=false) {
-        this.name = name;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.saved = saved;
-    }
-
-    getName() {
-        return this.name
-    }
-
-    getLatitude() {
-        return this.latitude;
-    }
-
-    getLongitude() {
-        return this.longitude;
-    }
-
-    setSaved(saved) {
-        this.saved = saved
-    }
-
-    isSaved () {
-        return this.saved;
-    }
-}
