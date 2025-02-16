@@ -3,7 +3,7 @@
 This is a small step up from experiment 1, this time using react to show the data on a webpage.
 
 ## To run:
-Note: An api key from a free account at https://openweathermap.org/api is needed to run this.
+Note: A key for OpenWeather's [current weather API](https://openweathermap.org/current) is needed for this program to run. A key for this can be gotten for free by [signing up](https://home.openweathermap.org/users/sign_up).
 1. Run `npm i` to install the required packages.
 2. Create a .env file in this experiment-2 folder (the same location as this README).
 3. Add a REACT_APP_WEATHER_API_KEY variable and set it to the api key from OpenWeather.
