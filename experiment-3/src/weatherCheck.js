@@ -1,29 +1,81 @@
-import { useState } from "react"
-import WeatherData from "./weatherData."
+import { useCallback, useState } from "react"
+import axios from "axios"
+import WeatherDisplay from "./weatherDisplay..js"
 
 export default function WeatherCheck() {
-    const [locations, setLocations] = useState([])
+    const [location, setLocation] = useState(null)
+    const [feedbackMessage, setFeedbackMessage] = useState(null)
 
-    const weatherData = locations.map(location => <WeatherData key={location} location={location}/>)
+    const getLocation = useCallback(async () => {
 
-    function cityInput() {
-        const userInput = document.getElementById("cityInput").value.toLowerCase()
-        if (locations.includes(userInput)) {
-            return false;
+        async function getCoordinatesFromName(name) {
+            const url = "http://api.openweathermap.org/geo/1.0/direct?q=" + name + ",GB&appid=" + process.env.REACT_APP_WEATHER_API_KEY;
+            const response = await axios.get(url)
+                .catch(function (error) {
+                    console.error(error)
+                });    
+
+            if (!response) {
+                setFeedbackMessage("An error occured.") 
+                return false;
+            }
+
+            if (response.data.length > 0) {
+                const place = response.data[0]
+                if (location != null && location.getName() === place.name) {
+                    setFeedbackMessage("Weather data for " + place.name + " is already displayed.")
+                    return false;
+                }
+                setLocation(new Location(place.name, place.lat, place.lon))
+                setFeedbackMessage("Found " + place.name + ".")
+            } else {
+                setFeedbackMessage(`No place called "` + name + `" was found.`)
+                setLocation(null)
+            }
+    
+
         }
-        const newLocations = [...locations, userInput]
-        setLocations(newLocations)
-    }
+    
+        function findWeather() {
+            const userInput = document.getElementById("locationInput").value.toLowerCase()
+            getCoordinatesFromName(userInput)
+        }
+
+        findWeather()
+    }, [location])
+
 
     return (
         <div>
             <p>Weather Check</p>
             <div>
-                <label htmlFor="cityInput">Enter city:</label>
-                <input type="text" id="cityInput"/>   
-                <button onClick={cityInput}>Submit</button>             
+                <label htmlFor="locationInput">Enter location: </label>
+                <input type="text" id="locationInput"/>   
+                <button onClick={getLocation}>Submit</button>             
             </div>
-            {weatherData}
+            <br/>
+            {feedbackMessage}
+            {location ? <WeatherDisplay key={location.getName()} location={location}/> : null}
         </div>
     )
+}
+
+class Location {
+    constructor(name, latitude, longitude) {
+        this.name = name;
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
+
+    getName() {
+        return this.name
+    }
+
+    getLatitude() {
+        return this.latitude;
+    }
+
+    getLongitude() {
+        return this.longitude;
+    }
 }
