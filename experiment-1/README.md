@@ -12,4 +12,4 @@ Note: A key for OpenWeather's [current weather API](https://openweathermap.org/c
 ## Changing parameters:
 This program is set to request the current weather data for Queen Mary University of London using the current weather api at https://openweathermap.org/current.
 
-You can change the link for one of their different apis, or change the parameters to other ones for further testing.  You can right click in google maps to see the latitude and longitude of a location.
+You can change the code easily to check another one of their APIs (or any API really), or change the parameters like lat and lon for a different location.  You can right click in google maps to see the latitude and longitude of a location.
