@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react"
 import axios from "axios"
-import WeatherDisplay from "./weatherDisplay..js"
+import WeatherLocation from "./weatherLocation.js"
 
 export default function WeatherCheck() {
     const [location, setLocation] = useState(null)
@@ -8,8 +8,8 @@ export default function WeatherCheck() {
 
     const getLocation = useCallback(async () => {
 
-        async function getCoordinatesFromName(name) {
-            const url = "http://api.openweathermap.org/geo/1.0/direct?q=" + name + ",GB&appid=" + process.env.REACT_APP_WEATHER_API_KEY;
+        async function getCoordinatesFromName(name) { // Checks name against Geocoding API, sets location if its found
+            const url = `http://api.openweathermap.org/geo/1.0/direct?q=${name},GB&appid=${process.env.REACT_APP_WEATHER_API_KEY}`;
             const response = await axios.get(url)
                 .catch(function (error) {
                     console.error(error)
@@ -17,6 +17,7 @@ export default function WeatherCheck() {
 
             if (!response) {
                 setFeedbackMessage("An error occured.") 
+                setLocation(null)
                 return false;
             }
 
@@ -55,16 +56,18 @@ export default function WeatherCheck() {
             </div>
             <br/>
             {feedbackMessage}
-            {location ? <WeatherDisplay key={location.getName()} location={location}/> : null}
+            <hr/>
+            {location ? <WeatherLocation key={location.getName()} location={location}/> : null}
         </div>
     )
 }
 
 class Location {
-    constructor(name, latitude, longitude) {
+    constructor(name, latitude, longitude, saved=false) {
         this.name = name;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.saved = saved;
     }
 
     getName() {
@@ -77,5 +80,9 @@ class Location {
 
     getLongitude() {
         return this.longitude;
+    }
+
+    isSaved () {
+        return this.saved;
     }
 }
