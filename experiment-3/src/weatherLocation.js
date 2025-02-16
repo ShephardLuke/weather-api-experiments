@@ -21,6 +21,6 @@ export default function WeatherLocation({location, addStoredLocation, removeStor
     }, [getWeatherData])
 
     return (
-        weatherData ? <WeatherDisplay location={location} data={weatherData} addStoredLocation={addStoredLocation} removedStoredLocation={removeStoredLocation}/> : "Getting data..."
+        weatherData ? <WeatherDisplay location={location} data={weatherData} addStoredLocation={addStoredLocation} removedStoredLocation={() => {removeStoredLocation(location)}}/> : "Getting data..."
     )
 }

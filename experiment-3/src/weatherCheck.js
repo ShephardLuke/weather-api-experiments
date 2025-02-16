@@ -45,7 +45,7 @@ export default function WeatherCheck() {
 
     function removeStoredLocation(toRemove) { // Remove a stored location
         const newStoredLocations = [...savedLocations]
-        newStoredLocations.splice(toRemove, 1)
+        newStoredLocations.splice(newStoredLocations.indexOf(toRemove), 1)
 
         if (toRemove === location) {
             const newLocation = new Location(location.name, location.latitude, location.longitude, false)
@@ -57,8 +57,7 @@ export default function WeatherCheck() {
     }
 
     const getLocation = useCallback(async () => { // Get a location using API and set the state
-
-        async function getCoordinatesFromName(name) { // Checks name against Geocoding API, sets location if its found
+        async function getCoordinatesFromName(name) { // Looks up name using Geocoding API
             const url = `http://api.openweathermap.org/geo/1.0/direct?q=${name},GB&appid=${process.env.REACT_APP_WEATHER_API_KEY}`;
             
             const response = await axios.get(url)
@@ -66,43 +65,66 @@ export default function WeatherCheck() {
                     console.error(error)
                 });    
 
-            if (!response) {
-                setFeedbackMessage("An error occured.") 
-                setLocation(null)
-                return;
+            return response
+    
+        }
+
+        async function getCoordinatesFromPostcode(postcode) { // Looks up postcode using Geocoding API
+            const url = `http://api.openweathermap.org/geo/1.0/zip?zip=${postcode},GB&appid=${process.env.REACT_APP_WEATHER_API_KEY}`;
+            
+            const response = await axios.get(url)
+                .catch(function (error) {
+                    console.error(error)
+                });    
+
+            return response
+        }
+    
+        async function findWeather() { // Gets user input and attempts to get the location
+            const name = document.getElementById("locationInput").value.toLowerCase()
+
+            const postcodeCheck = new RegExp("[0-9]")
+            
+            
+            let response;
+            let place;
+
+            if (postcodeCheck.test(name)) { // Choose postcode/name depending on if numbers are found in the query or not
+                response = await getCoordinatesFromPostcode(name)
+                if (!response) {
+                    setFeedbackMessage(`Nothing was found for "` + name + `". Please make sure postcodes have a space in the middle.`)
+                    setLocation(null)
+                    return
+                }
+                place = response.data
+            } else {
+                response = await getCoordinatesFromName(name)
+
+                if (response.data.length === 0) {
+                    setFeedbackMessage(`Nothing was found for "` + name + `".`)
+                    setLocation(null)
+                    return;
+                }
+
+                place = response.data[0]
             }
 
             console.log(response.data)
-
-            if (response.data.length > 0) { // A response with at least one place
-                const place = response.data[0]
                 
-                const savedNames = savedLocations.map(location => location.getName());
-                const index = savedNames.indexOf(place.name)
-                if (index !== -1) { // If already saved, no need to display
-                    setFeedbackMessage(`${place.name} is already a saved location.`);
-                    setLocation(savedLocations[index]);
-                    return;
-                }
-
-                if (location != null && location.getName() === place.name) { // Place with same name is already shown
-                    setFeedbackMessage("Weather data for " + place.name + " is already displayed.")
-                    return;
-                }
-                setLocation(new Location(place.name, place.lat, place.lon))
-                setFeedbackMessage("Found " + place.name + ".")
-
-            } else {
-                setFeedbackMessage(`No place called "` + name + `" was found.`)
-                setLocation(null)
+            const savedNames = savedLocations.map(location => location.getName());
+            const index = savedNames.indexOf(place.name)
+            if (index !== -1) { // If already saved, no need to display
+                setFeedbackMessage(`${place.name} is already a saved location.`);
+                return;
             }
-    
-        }
-    
-        function findWeather() { // Gets user input and attempts to get the location
-            const userInput = document.getElementById("locationInput").value.toLowerCase()
 
-            getCoordinatesFromName(userInput)
+            if (location != null && location.getName() === place.name) { // Place with same name is already shown
+                setFeedbackMessage("Weather data for " + place.name + " is already displayed.")
+                return;
+            }
+            setLocation(new Location(place.name, place.lat, place.lon))
+            setFeedbackMessage("Found " + place.name + ".")
+
         }
 
         findWeather()
@@ -115,7 +137,7 @@ export default function WeatherCheck() {
             <h1>Weather API Experiment 3</h1>
 
             <div>
-                <label htmlFor="locationInput">Enter search location: </label>
+                <label htmlFor="locationInput">Enter search location (place name or postcode): </label>
                 <input type="text" id="locationInput"/>   
                 <button onClick={getLocation}>Submit</button>             
             </div>
